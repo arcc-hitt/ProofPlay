@@ -5,6 +5,6 @@ import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <App videoId={'abcd1234'} userId={'2'} />
   </StrictMode>,
 )
