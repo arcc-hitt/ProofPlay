@@ -1,17 +1,30 @@
-import mongoose from 'mongoose';
+// Progress.ts (Mongoose model for progress collection)
+import mongoose, { Document, Schema } from 'mongoose';
 
-const IntervalSchema = new mongoose.Schema({
-  start: Number,
-  end: Number,
-}, { _id: false });
+export interface IWatchedInterval {
+  start: number;
+  end: number;
+}
 
-const ProgressSchema = new mongoose.Schema({
+export interface IProgress extends Document {
+  userId: string;
+  videoId: string;
+  watchedIntervals: IWatchedInterval[];
+  lastPosition: number;
+  progressPercent: number;
+}
+
+const WatchedIntervalSchema: Schema = new Schema({
+  start: { type: Number, required: true },
+  end: { type: Number, required: true },
+});
+
+const ProgressSchema: Schema = new Schema({
   userId: { type: String, required: true },
   videoId: { type: String, required: true },
-  watchedIntervals: [IntervalSchema],
-  lastPosition: Number,
-  videoDuration: Number,
-  progressPercent: Number,
-}, { timestamps: true });
+  watchedIntervals: { type: [WatchedIntervalSchema], default: [] },
+  lastPosition: { type: Number, default: 0 },
+  progressPercent: { type: Number, default: 0 },
+});
 
-export default mongoose.model('Progress', ProgressSchema);
+export default mongoose.model<IProgress>('Progress', ProgressSchema);
