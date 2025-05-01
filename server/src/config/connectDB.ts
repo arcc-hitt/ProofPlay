@@ -1,12 +1,18 @@
-// connectDB.ts
+// Description: MongoDB connection logic using Mongoose.
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const connectDB = async () => {
+  const mongoURI = process.env.MONGO_URI;
+  
+  if (!mongoURI) {
+    console.error('MONGO_URI not found in environment variables');
+    process.exit(1);
+  }
+
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://mahulearchit:arc-4321@videoprogress.a2kbhcs.mongodb.net/?retryWrites=true&w=majority&appName=videoprogress', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    } as mongoose.ConnectOptions);
+    await mongoose.connect(mongoURI);
     console.log('MongoDB connected');
   } catch (error) {
     console.error('MongoDB connection error:', error);
