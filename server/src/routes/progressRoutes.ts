@@ -1,13 +1,21 @@
-// progressRoutes.ts
-import express from 'express';
-import { getProgress, updateProgress } from '../controllers/progressController';
+// Description: Routes for managing user progress on videos.
+import { Router } from 'express';
+import passport from '../config/passport';
+import {
+  getProgress,
+  updateProgress,
+} from '../controllers/progressController';
 
-const router = express.Router();
+const router = Router();
 
-// GET current progress (intervals and last position) for a user and video
-router.get('/:userId/:videoId', getProgress);
+// Apply JWT auth to all progress routes
+const requireAuth = passport.authenticate('jwt', { session: false });
 
-// POST new watched intervals and last position
-router.post('/update', updateProgress);
+// GET /api/progress/:videoId
+router.get('/:videoId', requireAuth, getProgress);
+
+// POST /api/progress/update
+router.post('/update', requireAuth, updateProgress);
 
 export default router;
+

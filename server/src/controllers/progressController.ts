@@ -1,85 +1,120 @@
-import { Request, Response } from 'express';
+// Description: Controller for managing authenticated user progress on videos.
+import { RequestHandler, Response } from 'express';
 import ProgressModel, { IWatchedInterval } from '../models/Progress';
+import { IUser } from '../models/User';
 
-export const updateProgress = async (req: Request, res: Response) => {
+// GET /api/progress/:videoId
+// Returns the watching progress for the authenticated user.
+export const getProgress: RequestHandler = async (req, res: Response): Promise<void> => {
   try {
-    const { userId, videoId, watchedIntervals, lastPosition, videoDuration } = req.body;
+    const user = req.user as IUser | undefined;
+    if (!user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
 
+    const { videoId } = req.params;
+    const progress = await ProgressModel.findOne({ user: user.id, videoId });
+
+    if (!progress) {
+      res.status(200).json({
+        watchedIntervals: [],
+        lastPosition: 0,
+        progressPercent: 0,
+      });
+      return;
+    }
+
+    res.status(200).json(progress);
+    return;
+  } catch (error) {
+    console.error('Error fetching progress:', error);
+    res.status(500).json({ error: 'Server error' });
+    return;
+  }
+};
+
+// POST /api/progress/update
+// Upserts watching progress for the authenticated user.
+export const updateProgress: RequestHandler = async (req, res: Response): Promise<void> => {
+  try {
+    const user = req.user as IUser | undefined;
+    if (!user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const {
+      videoId,
+      watchedIntervals,
+      lastPosition,
+      videoDuration,
+    } = req.body as {
+      videoId: string;
+      watchedIntervals: IWatchedInterval[];
+      lastPosition: number;
+      videoDuration: number;
+    };
+
+    // Validate
     if (
-      !userId ||
       !videoId ||
       !Array.isArray(watchedIntervals) ||
       typeof lastPosition !== 'number' ||
       typeof videoDuration !== 'number'
     ) {
-      res.status(400).json({ error: 'Missing or invalid fields in request body' });
+      res.status(400).json({ error: 'Invalid request body' });
       return;
     }
 
-    let progress = await ProgressModel.findOne({ userId, videoId });
+    // Find or create
+    let progress = await ProgressModel.findOne({ user: user.id, videoId });
     if (!progress) {
-      progress = new ProgressModel({ userId, videoId, watchedIntervals: [], lastPosition: 0, progressPercent: 0 });
+      progress = new ProgressModel({
+        user: user.id,
+        videoId,
+        watchedIntervals: [],
+        lastPosition: 0,
+        progressPercent: 0,
+      });
     }
 
-    // Merge old and new intervals
-    const allIntervals: IWatchedInterval[] = [
-      ...progress.watchedIntervals,
-      ...watchedIntervals,
-    ];
-    allIntervals.sort((a, b) => a.start - b.start);
-
-    // Coalesce overlapping/adjacent intervals
+    // Merge and coalesce intervals
+    const allIntervals = [...progress.watchedIntervals, ...watchedIntervals].sort(
+      (a, b) => a.start - b.start
+    );
     const merged: IWatchedInterval[] = [];
     for (const interval of allIntervals) {
-      if (merged.length === 0) {
-        merged.push({ start: interval.start, end: interval.end });
+      if (!merged.length || interval.start > merged[merged.length - 1].end + 1) {
+        merged.push({ ...interval });
       } else {
-        const last = merged[merged.length - 1];
-        if (interval.start <= last.end + 1) {
-          last.end = Math.max(last.end, interval.end);
-        } else {
-          merged.push({ start: interval.start, end: interval.end });
-        }
+        merged[merged.length - 1].end = Math.max(
+          merged[merged.length - 1].end,
+          interval.end
+        );
       }
     }
 
-    // Count unique seconds watched
+    // Compute percent
     let uniqueSeconds = 0;
     for (const { start, end } of merged) {
       uniqueSeconds += end - start + 1;
     }
+    const percent =
+      Math.floor(videoDuration) > 0
+        ? (uniqueSeconds / Math.floor(videoDuration)) * 100
+        : 0;
 
-    // Safely compute percent (never divide by zero)
-    const durationFloor = Math.floor(videoDuration);
-    const progressPercent =
-      durationFloor > 0 ? (uniqueSeconds / durationFloor) * 100 : 0;
-
-    // Persist
     progress.watchedIntervals = merged;
     progress.lastPosition = lastPosition;
-    progress.progressPercent = progressPercent;
+    progress.progressPercent = percent;
 
     await progress.save();
-
-    res.status(200).json({ success: true, progressPercent });
+    res.status(200).json({ success: true, progressPercent: percent });
+    return;
   } catch (error) {
     console.error('Error updating progress:', error);
     res.status(500).json({ error: 'Server error' });
-  }
-};
-
-
-export const getProgress = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { userId, videoId } = req.params;
-    const progress = await ProgressModel.findOne({ userId, videoId });
-    if (!progress) {
-      res.status(404).json({ message: 'Progress not found' });
-      return;
-    }
-    res.status(200).json(progress);
-  } catch (error) {
-    console.error('Error fetching progress:', error);
-    res.status(500).json({ error: 'Server error' });
+    return;
   }
 };
