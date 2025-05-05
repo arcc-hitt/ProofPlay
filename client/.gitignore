@@ -25,3 +25,4 @@ dist-ssr
 
 # Media files (local only)
 /public/*.mp4
+**/.env
