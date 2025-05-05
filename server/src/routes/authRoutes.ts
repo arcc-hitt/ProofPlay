@@ -17,7 +17,7 @@ router.get('/google/callback',
 );
 
 // GitHub
-router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+router.get('/github', passport.authenticate('github', { scope: ['user:email'], prompt: 'select_account' }));
 router.get('/github/callback',
   passport.authenticate('github', { session: false }),
   oauthCallback
