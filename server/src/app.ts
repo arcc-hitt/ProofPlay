@@ -5,6 +5,7 @@ import connectDB from './config/connectDB';
 import progressRoutes from './routes/progressRoutes';
 import authRoutes from './routes/authRoutes';
 import dotenv from 'dotenv';
+import passport from './config/passport';
 dotenv.config();
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(cors());
 connectDB();
 
 app.use(express.json());
+app.use(passport.initialize()); 
 
 // API routes for authentication
 app.use('/auth', authRoutes);
