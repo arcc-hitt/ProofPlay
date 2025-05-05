@@ -8,7 +8,7 @@ export interface IWatchedInterval {
 }
 
 export interface IProgress extends Document {
-  user: mongoose.Types.ObjectId | IUser;
+  userId: mongoose.Types.ObjectId | IUser;
   videoId: string;
   watchedIntervals: IWatchedInterval[];
   lastPosition: number;
@@ -25,7 +25,7 @@ const WatchedIntervalSchema = new Schema<IWatchedInterval>(
 
 const ProgressSchema = new Schema<IProgress>(
   {
-    user: {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -40,6 +40,6 @@ const ProgressSchema = new Schema<IProgress>(
 );
 
 // Prevent one user/video duplicate
-ProgressSchema.index({ user: 1, videoId: 1 }, { unique: true });
+ProgressSchema.index({ userId: 1, videoId: 1 }, { unique: true });
 
 export default mongoose.model<IProgress>('Progress', ProgressSchema);
