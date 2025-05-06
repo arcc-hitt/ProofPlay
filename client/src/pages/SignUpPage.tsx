@@ -5,36 +5,51 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const GOOGLE_AUTH_URL = 'http://localhost:5000/auth/google';
 const GITHUB_AUTH_URL = 'http://localhost:5000/auth/github';
 
+// Define Zod schema
+const signupSchema = z
+  .object({
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+    confirm: z.string().min(6, 'Password must be at least 6 characters'),
+  })
+  .refine((data) => data.password === data.confirm, {
+    path: ['confirm'],
+    message: 'Passwords do not match',
+  });
+
+type SignUpFormInputs = z.infer<typeof signupSchema>;
+
 export const SignUpPage: React.FC = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignUpFormInputs>({
+    resolver: zodResolver(signupSchema),
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password !== confirm) {
-      toast.error('Passwords do not match');
-      return;
-    }
-    setLoading(true);
+  const onSubmit = async (data: SignUpFormInputs) => {
+    setServerError(null);
     try {
-      const res = await axios.post('http://localhost:5000/auth/signup', { email, password });
+      const res = await axios.post('http://localhost:5000/auth/signup', {
+        email: data.email,
+        password: data.password,
+      });
       const { token } = res.data;
       localStorage.setItem('jwtToken', token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      toast.success('Account created!');
       navigate('/', { replace: true });
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Sign up failed');
-    } finally {
-      setLoading(false);
+      setServerError(err.response?.data?.error || 'Sign up failed');
     }
   };
 
@@ -60,39 +75,50 @@ export const SignUpPage: React.FC = () => {
 
           <div className="text-center text-sm text-gray-500 mb-2">or use your email</div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Server error */}
+            {serverError && (
+              <p className="text-red-600 text-sm text-center">{serverError}</p>
+            )}
+
             <div>
               <label className="block mb-1 text-sm font-medium">Email</label>
               <Input
                 type="email"
-                required
-                value={email}
-                onChange={e => setEmail(e.target.value)}
                 placeholder="you@example.com"
+                {...register('email')}
               />
+              {errors.email && (
+                <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
+              )}
             </div>
+
             <div>
               <label className="block mb-1 text-sm font-medium">Password</label>
               <Input
                 type="password"
-                required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
+                {...register('password')}
               />
+              {errors.password && (
+                <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>
+              )}
             </div>
+
             <div>
               <label className="block mb-1 text-sm font-medium">Confirm Password</label>
               <Input
                 type="password"
-                required
-                value={confirm}
-                onChange={e => setConfirm(e.target.value)}
                 placeholder="••••••••"
+                {...register('confirm')}
               />
+              {errors.confirm && (
+                <p className="text-red-600 text-sm mt-1">{errors.confirm.message}</p>
+              )}
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing up…' : 'Sign Up'}
+
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? 'Signing up…' : 'Sign Up'}
             </Button>
           </form>
 
