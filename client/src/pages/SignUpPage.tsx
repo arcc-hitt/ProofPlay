@@ -1,21 +1,20 @@
 // Description: SignUpPage component for user registration with email and social media options (Google, GitHub).
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-
-const GOOGLE_AUTH_URL = 'http://localhost:5000/auth/google';
-const GITHUB_AUTH_URL = 'http://localhost:5000/auth/github';
+import { toast } from 'sonner';
+import { signup } from '@/lib/auth';
+import { GOOGLE_AUTH_URL, GITHUB_AUTH_URL } from '@/config';
 
 // Define Zod schema
 const signupSchema = z
   .object({
-    email: z.string().email('Invalid email address'),
+    email: z.string().nonempty('Email is required').email('Invalid email'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
     confirm: z.string().min(6, 'Password must be at least 6 characters'),
   })
@@ -28,7 +27,6 @@ type SignUpFormInputs = z.infer<typeof signupSchema>;
 
 export const SignUpPage: React.FC = () => {
   const navigate = useNavigate();
-  const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -38,18 +36,13 @@ export const SignUpPage: React.FC = () => {
   });
 
   const onSubmit = async (data: SignUpFormInputs) => {
-    setServerError(null);
     try {
-      const res = await axios.post('http://localhost:5000/auth/signup', {
-        email: data.email,
-        password: data.password,
-      });
-      const { token } = res.data;
-      localStorage.setItem('jwtToken', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      await signup(data);
       navigate('/', { replace: true });
     } catch (err: any) {
-      setServerError(err.response?.data?.error || 'Sign up failed');
+      const status = err.response?.status;
+      if (status === 500) toast.error('Email already registered');
+      else toast.error('Sign up failed. Try again later.');
     }
   };
 
@@ -76,11 +69,6 @@ export const SignUpPage: React.FC = () => {
           <div className="text-center text-sm text-gray-500 mb-2">or use your email</div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Server error */}
-            {serverError && (
-              <p className="text-red-600 text-sm text-center">{serverError}</p>
-            )}
-
             <div>
               <label className="block mb-1 text-sm font-medium">Email</label>
               <Input
