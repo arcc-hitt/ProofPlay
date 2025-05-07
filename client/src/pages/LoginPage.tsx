@@ -1,20 +1,20 @@
 // Description: Login page component for user authentication using email/password and social login (Google, GitHub).
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+import { login } from '@/lib/auth';
+import { GOOGLE_AUTH_URL, GITHUB_AUTH_URL } from '@/config';
 
-const GOOGLE_AUTH_URL = 'http://localhost:5000/auth/google';
-const GITHUB_AUTH_URL = 'http://localhost:5000/auth/github';
 
 // Define Zod schema
 const loginSchema = z.object({
-  email: z.string().nonempty('Email is required'),
+  email: z.string().nonempty('Email is required').email('Invalid email'),
   password: z.string().nonempty('Password is required'),
 });
 
@@ -22,7 +22,6 @@ type LoginFormInputs = z.infer<typeof loginSchema>;
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -32,15 +31,14 @@ export const LoginPage: React.FC = () => {
   });
 
   const onSubmit = async (data: LoginFormInputs) => {
-    setServerError(null);
     try {
-      const res = await axios.post('http://localhost:5000/auth/login', data);
-      const { token } = res.data;
-      localStorage.setItem('jwtToken', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      await login(data);
       navigate('/', { replace: true });
     } catch (err: any) {
-      setServerError(err.response?.data?.error || 'Login failed');
+      const status = err.response?.status;
+      if (status === 400) toast.error('Bad request');
+      else if (status === 401) toast.error('Invalid credentials');
+      else toast.error('Login failed. Try again later.');
     }
   };
 
@@ -67,11 +65,6 @@ export const LoginPage: React.FC = () => {
           <div className="text-center text-sm text-gray-500 mb-2">or use your email</div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Server error */}
-            {serverError && (
-              <p className="text-red-600 text-sm text-center">{serverError}</p>
-            )}
-
             <div>
               <label className="block mb-1 text-sm font-medium">Email</label>
               <Input
