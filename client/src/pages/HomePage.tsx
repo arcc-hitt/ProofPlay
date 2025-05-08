@@ -128,41 +128,38 @@ const HomePage: React.FC = () => {
   if (loading) {
     // Skeleton placeholders for header, video, and progress bar
     return (
-      <div className="container mx-auto p-4 space-y-4">
-        <div className="flex justify-end">
-          <Skeleton className="h-8 w-20 rounded" />
-        </div>
-        <Skeleton className="w-full h-96 rounded-lg" />
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div className="flex justify-end"><Skeleton className="h-8 w-20 rounded" /></div>
+        <Skeleton className="w-full h-64 sm:h-96 rounded-lg" />
         <Skeleton className="w-full h-3 rounded" />
-        <Skeleton className="w-24 h-5 rounded mx-auto" />
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-end mb-4">
-        <Button variant="outline" onClick={() => logout()}>
-          Logout
-        </Button>
-      </div>
+    <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <header className="flex justify-end">
+        <Button variant="default" onClick={() => logout()}>Logout</Button>
+      </header>
 
-      <video
-        ref={videoRef}
-        src="/video.mp4"
-        controls
-        className="w-full rounded-lg shadow"
-        onLoadedMetadata={handleLoadedMetadata}
-        onError={() => toast.error('Failed to load video.')}
-      />
+      <section>
+        <video
+          ref={videoRef}
+          src="/video.mp4"
+          controls
+          className="w-full rounded-lg shadow-lg"
+          onLoadedMetadata={handleLoadedMetadata}
+          onError={() => toast.error('Failed to load video.')}
+        />
+      </section>
 
-      <div className="my-4">
+      <section className="space-y-2">
         <Progress value={progressPercent} max={100} className="w-full h-3" />
-        <p className="mt-2 text-center text-sm font-medium">
+        <p className="text-center text-sm font-medium">
           {progressPercent.toFixed(2)}% watched
         </p>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 
