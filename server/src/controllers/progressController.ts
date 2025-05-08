@@ -2,43 +2,39 @@
 import { RequestHandler, Response } from 'express';
 import ProgressModel, { IWatchedInterval } from '../models/Progress';
 import { IUser } from '../models/User';
+import expressAsyncHandler from 'express-async-handler';
 
 // GET /api/progress/:videoId
 // Returns the watching progress for the authenticated user.
-export const getProgress: RequestHandler = async (req, res: Response): Promise<void> => {
-  try {
-    const user = req.user as IUser | undefined;
-    if (!user) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
-
-    const { videoId } = req.params;
-    const progress = await ProgressModel.findOne({ userId: user._id, videoId });
-
-    if (!progress) {
-      res.status(200).json({
-        watchedIntervals: [],
-        lastPosition: 0,
-        progressPercent: 0,
-      });
-      return;
-    }
-
-    res.status(200).json(progress);
-    return;
-  } catch (error) {
-    console.error('Error fetching progress:', error);
-    res.status(500).json({ error: 'Server error' });
+export const getProgress: RequestHandler = expressAsyncHandler(async (req, res: Response): Promise<void> => {
+  const user = req.user as IUser | undefined;
+  if (!user) {
+    res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-};
+
+  const { videoId } = req.params;
+  const progress = await ProgressModel.findOne({ userId: user._id, videoId });
+
+  if (!progress) {
+    res.status(200).json({
+      videoId,
+      videoDuration: 0,
+      watchedIntervals: [],
+      lastPosition: 0,
+      progressPercent: 0,
+    });
+    return;
+  }
+
+  res.status(200).json(progress);
+  return;
+});
 
 // POST /api/progress/update
 // Upserts watching progress for the authenticated user.
-export const updateProgress: RequestHandler = async (req, res: Response): Promise<void> => {
-  try {
-    const user = req.user as IUser | undefined;
+export const updateProgress: RequestHandler = expressAsyncHandler(async (req, res: Response): Promise<void> => {
+  const user = req.user as IUser | undefined;
     if (!user) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
@@ -47,14 +43,14 @@ export const updateProgress: RequestHandler = async (req, res: Response): Promis
     // Destructure and basic type checking
     const {
       videoId,
+      videoDuration: rawDuration,
       watchedIntervals: rawIntervals,
       lastPosition,
-      videoDuration: rawDuration,
     } = req.body as {
       videoId: any;
+      videoDuration: any;
       watchedIntervals: any;
       lastPosition: any;
-      videoDuration: any;
     };
 
     if (
@@ -81,6 +77,7 @@ export const updateProgress: RequestHandler = async (req, res: Response): Promis
       progress = new ProgressModel({
         userId: user._id,
         videoId,
+        videoDuration: videoDuration,
         watchedIntervals: [],
         lastPosition: 0,
         progressPercent: 0,
@@ -137,14 +134,11 @@ export const updateProgress: RequestHandler = async (req, res: Response): Promis
       : 0;
 
     // Assign back and save
+    progress.videoDuration = videoDuration;
     progress.watchedIntervals = merged;
     progress.lastPosition = safeLastPosition;
     progress.progressPercent = progressPercent;
 
     await progress.save();
     res.status(200).json({ success: true, progressPercent });
-  } catch (err) {
-    console.error('Error updating progress:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-};
+});
