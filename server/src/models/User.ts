@@ -12,15 +12,21 @@ export interface IUser extends Document {
   federated?: IFederatedIdentity[];   // for social logins
 }
 
-const FederatedSchema = new Schema<IFederatedIdentity>({
-  provider: { type: String, required: true },
-  providerId: { type: String, required: true },
-});
+const FederatedSchema = new Schema<IFederatedIdentity>(
+  {
+    provider: { type: String, required: true, enum: ['google', 'github'] },
+    providerId: { type: String, required: true },
+  },
+  { _id: false }
+);
 
-const UserSchema = new Schema<IUser>({
-  email: { type: String, required: true, unique: true },
-  passwordHash: { type: String },
-  federated: { type: [FederatedSchema], default: [] },
-});
+const UserSchema = new Schema<IUser>(
+  {
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    passwordHash: { type: String, select: false },
+    federated: { type: [FederatedSchema], default: [] },
+  },
+  { timestamps: true }
+);
 
 export default model<IUser>('User', UserSchema);

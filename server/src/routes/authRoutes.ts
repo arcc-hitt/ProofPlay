@@ -2,12 +2,13 @@
 import { Router } from 'express';
 import passport from '../config/passport';
 import { login, oauthCallback, signup } from '../controllers/authController';
+import { loginValidator, signupValidator } from '../middlewares/validateRequest';
 
 const router = Router();
 
 // Local
-router.post('/signup', signup);
-router.post('/login', login);
+router.post('/signup', signupValidator, signup);
+router.post('/login', loginValidator, login);
 
 // Google
 router.get('/google', passport.authenticate('google', { scope: ['email','profile'] }));

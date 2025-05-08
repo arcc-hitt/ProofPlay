@@ -8,6 +8,8 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 
 import User, { IUser } from '../models/User';
+import logger from './logger';
+import env from './env';
 
 dotenv.config();
 
@@ -20,17 +22,18 @@ passport.use(new LocalStrategy(
     done: (err: any, user?: IUser, info?: any) => void
   ) => {
     try {
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ email }).select('+passwordHash');
       if (!user || !user.passwordHash) {
-        return done(null, undefined);
+        return done(null, undefined, { message: 'Invalid credentials' });
       }
 
       const match = await bcrypt.compare(password, user.passwordHash);
       return match
         ? done(null, user)
-        : done(null, undefined);
+        : done(null, undefined, { message: 'Invalid credentials' });
 
     } catch (err) {
+      logger.error('LocalStrategy error', err);
       return done(err);
     }
   }
@@ -39,14 +42,14 @@ passport.use(new LocalStrategy(
 // --- Google OAuth2 strategy ---
 passport.use(new GoogleStrategy(
   {
-    clientID:     process.env.GOOGLE_CLIENT_ID!,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    callbackURL:  `${process.env.BACKEND_URL}/auth/google/callback`,
+    clientID: env.GOOGLE_CLIENT_ID,
+    clientSecret: env.GOOGLE_CLIENT_SECRET,
+    callbackURL: `${env.BACKEND_URL}/auth/google/callback`,
   },
   async (
-    accessToken: string,
-    refreshToken: string,
-    params: any,
+    _accessToken: string,
+    _refreshToken: string,
+    _params: any,
     profile: GoogleProfile,
     done: (err: any, user?: IUser, info?: any) => void
   ) => {
@@ -80,7 +83,8 @@ passport.use(new GoogleStrategy(
       done(null, user);
 
     } catch (err) {
-      done(err);
+      logger.error('GoogleStrategy error', err);
+      done(err as Error);
     }
   }
 ));
@@ -88,15 +92,15 @@ passport.use(new GoogleStrategy(
 // --- GitHub OAuth2 strategy ---
 passport.use(new GitHubStrategy(
   {
-    clientID:     process.env.GITHUB_CLIENT_ID!,
-    clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    callbackURL:  `${process.env.BACKEND_URL}/auth/github/callback`,
+    clientID: env.GITHUB_CLIENT_ID,
+    clientSecret: env.GITHUB_CLIENT_SECRET,
+    callbackURL: `${env.BACKEND_URL}/auth/github/callback`,
     scope: ['user:email'], 
   },
   async (
-    accessToken: string,
-    refreshToken: string,
-    params: any,
+    _accessToken: string,
+    _refreshToken: string,
+    _params: any,
     profile: GitHubProfile,
     done: (err: any, user?: IUser, info?: any) => void
   ) => {
@@ -130,7 +134,8 @@ passport.use(new GitHubStrategy(
       done(null, user);
 
     } catch (err) {
-      done(err);
+      logger.error('GitHubStrategy error', err);
+      done(err as Error);
     }
   }
 ));
@@ -139,7 +144,7 @@ passport.use(new GitHubStrategy(
 passport.use(new JwtStrategy(
   {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey:    process.env.JWT_SECRET!,
+    secretOrKey: env.JWT_SECRET,
   },
   async (
     jwtPayload: any,
@@ -149,7 +154,8 @@ passport.use(new JwtStrategy(
       const user = await User.findById(jwtPayload.sub);
       done(null, user || undefined);
     } catch (err) {
-      done(err as Error, undefined);
+      logger.error('JwtStrategy error', err);
+      return done(err as Error, undefined);
     }
   }
 ));

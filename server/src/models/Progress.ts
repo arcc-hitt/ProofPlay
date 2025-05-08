@@ -10,6 +10,7 @@ export interface IWatchedInterval {
 export interface IProgress extends Document {
   userId: mongoose.Types.ObjectId | IUser;
   videoId: string;
+  videoDuration: number;
   watchedIntervals: IWatchedInterval[];
   lastPosition: number;
   progressPercent: number;
@@ -18,7 +19,7 @@ export interface IProgress extends Document {
 const WatchedIntervalSchema = new Schema<IWatchedInterval>(
   {
     start: { type: Number, required: true },
-    end:   { type: Number, required: true },
+    end: { type: Number, required: true },
   },
   { _id: false }
 );
@@ -31,10 +32,11 @@ const ProgressSchema = new Schema<IProgress>(
       required: true,
       index: true,
     },
-    videoId:          { type: String, required: true, index: true },
+    videoId: { type: String, required: true, index: true },
+    videoDuration: { type: Number, required: true },
     watchedIntervals: { type: [WatchedIntervalSchema], default: [] },
-    lastPosition:     { type: Number, default: 0 },
-    progressPercent:  { type: Number, default: 0 },
+    lastPosition: { type: Number, default: 0 },
+    progressPercent: { type: Number, default: 0, min: 0, max: 100 },
   },
   { timestamps: true }
 );

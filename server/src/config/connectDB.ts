@@ -1,23 +1,14 @@
 // Description: MongoDB connection logic using Mongoose.
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-dotenv.config();
+import env from './env';
+import logger from './logger';
 
-const connectDB = async () => {
-  const mongoURI = process.env.MONGO_URI;
-  
-  if (!mongoURI) {
-    console.error('MONGO_URI not found in environment variables');
-    process.exit(1);
-  }
-
+export default async function connectDB() {
   try {
-    await mongoose.connect(mongoURI);
-    console.log('MongoDB connected');
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
+    await mongoose.connect(env.MONGO_URI);
+    logger.info('MongoDB connected');
+  } catch (err) {
+    logger.error('MongoDB connection failed', err);
     process.exit(1);
   }
-};
-
-export default connectDB;
+}
