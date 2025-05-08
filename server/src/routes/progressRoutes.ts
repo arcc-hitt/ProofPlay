@@ -5,6 +5,7 @@ import {
   getProgress,
   updateProgress,
 } from '../controllers/progressController';
+import { progressValidator } from '../middlewares/validateRequest';
 
 const router = Router();
 
@@ -15,7 +16,7 @@ const requireAuth = passport.authenticate('jwt', { session: false });
 router.get('/:videoId', requireAuth, getProgress);
 
 // POST /api/progress/update
-router.post('/update', requireAuth, updateProgress);
+router.post('/update', requireAuth, progressValidator, updateProgress);
 
 export default router;
 
