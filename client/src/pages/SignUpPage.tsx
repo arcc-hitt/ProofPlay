@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { signup } from '@/lib/auth';
 import { GOOGLE_AUTH_URL, GITHUB_AUTH_URL } from '@/config';
+import { SocialAuthButton } from '@/components/SocialButton';
 
 // Define Zod schema
 const signupSchema = z
@@ -46,78 +47,51 @@ export const SignUpPage: React.FC = () => {
     }
   };
 
-  const openSocial = (url: string) => {
-    window.location.href = url;
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md p-6 space-y-4">
-        <CardContent>
-          <h2 className="text-xl font-semibold mb-4 text-center">Sign Up</h2>
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <Card className="w-full max-w-md lg:max-w-lg p-6">
+        <CardContent className="space-y-6">
+          <h2 className="text-2xl font-semibold text-center">Sign Up</h2>
 
-          {/* Social Signup Buttons */}
-          <div className="flex flex-col space-y-2 mb-4">
-            <Button onClick={() => openSocial(GOOGLE_AUTH_URL)} className="w-full">
-              Sign up with Google
-            </Button>
-            <Button onClick={() => openSocial(GITHUB_AUTH_URL)} className="w-full">
-              Sign up with GitHub
-            </Button>
+          <div className="space-y-3">
+            <SocialAuthButton provider="google" url={GOOGLE_AUTH_URL} />
+            <SocialAuthButton provider="github" url={GITHUB_AUTH_URL} />
           </div>
 
-          <div className="text-center text-sm text-gray-500 mb-2">or use your email</div>
+          <div className="text-center text-sm text-gray-500">or use your email</div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label className="block mb-1 text-sm font-medium">Email</label>
-              <Input
-                type="email"
-                placeholder="you@example.com"
-                {...register('email')}
-              />
-              {errors.email && (
-                <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
-              )}
+          <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="col-span-full md:col-span-2">
+              <label htmlFor="email" className="block mb-1 text-sm font-medium">Email</label>
+              <Input id="email" type="email" placeholder="you@example.com" {...register('email')} />
+              {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
             </div>
 
             <div>
-              <label className="block mb-1 text-sm font-medium">Password</label>
-              <Input
-                type="password"
-                placeholder="••••••••"
-                {...register('password')}
-              />
-              {errors.password && (
-                <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>
-              )}
+              <label htmlFor="password" className="block mb-1 text-sm font-medium">Password</label>
+              <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
+              {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
             </div>
 
             <div>
-              <label className="block mb-1 text-sm font-medium">Confirm Password</label>
-              <Input
-                type="password"
-                placeholder="••••••••"
-                {...register('confirm')}
-              />
-              {errors.confirm && (
-                <p className="text-red-600 text-sm mt-1">{errors.confirm.message}</p>
-              )}
+              <label htmlFor="confirm" className="block mb-1 text-sm font-medium">Confirm Password</label>
+              <Input id="confirm" type="password" placeholder="••••••••" {...register('confirm')} />
+              {errors.confirm && <p className="text-red-600 text-sm mt-1">{errors.confirm.message}</p>}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Signing up…' : 'Sign Up'}
-            </Button>
+            <div className="col-span-full md:col-span-2">
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? 'Signing up…' : 'Sign Up'}
+              </Button>
+            </div>
           </form>
 
-          <p className="mt-4 text-center text-sm">
+          <p className="text-center text-sm">
             Have an account?{' '}
-            <Link to="/login" className="text-blue-600 hover:underline">
-              Log in
-            </Link>
+            <Link to="/login" className="text-blue-600 hover:underline">Log in</Link>
           </p>
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 };
