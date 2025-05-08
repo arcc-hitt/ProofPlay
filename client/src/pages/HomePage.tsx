@@ -5,7 +5,6 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useParams } from 'react-router-dom';
-import { Skeleton } from '@/components/ui/skeleton';
 import { logout } from '@/lib/auth';
 
 interface WatchedInterval {
@@ -14,12 +13,11 @@ interface WatchedInterval {
 }
 
 const HomePage: React.FC = () => {
-  const { videoId = 'lecture2' } = useParams<{ videoId: string }>();
+  const { videoId = 'lecture1' } = useParams<{ videoId: string }>();
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [progressPercent, setProgressPercent] = useState<number>(0);
-  const [loading, setLoading] = useState(true);
 
   const watchedSecondsRef = useRef<Set<number>>(new Set());
   const newIntervalsRef = useRef<WatchedInterval[]>([]);
@@ -44,11 +42,9 @@ const HomePage: React.FC = () => {
         setProgressPercent(data.progressPercent ?? 0);
       })
       .catch((err) => {
-        // Global interceptor will handle 401; show others here
+        // Global interceptor will handle 401 show others here
         console.error('Failed to fetch progress:', err);
         toast.error('Error fetching your progress. Please try again.');
-      }).finally(() => {
-        setLoading(false);
       });
   }, [videoId]);
 
@@ -86,7 +82,7 @@ const HomePage: React.FC = () => {
       if (currentIntervalRef.current) {
         intervalsToSend.push(currentIntervalRef.current);
       }
-      if (intervalsToSend.length === 0 || videoDuration === 0) return;
+      if (videoDuration === 0) return;
 
       api
         .post('/api/progress/update', {
@@ -124,17 +120,6 @@ const HomePage: React.FC = () => {
       setVideoDuration(Math.floor(videoRef.current.duration));
     }
   };
-
-  if (loading) {
-    // Skeleton placeholders for header, video, and progress bar
-    return (
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        <div className="flex justify-end"><Skeleton className="h-8 w-20 rounded" /></div>
-        <Skeleton className="w-full h-64 sm:h-96 rounded-lg" />
-        <Skeleton className="w-full h-3 rounded" />
-      </main>
-    );
-  }
 
   return (
     <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
