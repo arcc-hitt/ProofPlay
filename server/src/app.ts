@@ -13,28 +13,38 @@ import connectDB from './config/connectDB';
 import logger from './config/logger';
 import videoRoutes from './routes/videoRoutes';
 
+// Build a regex matching Vercel’s preview domains for your project
+const vercelPreviewRegex =
+  /^https:\/\/video-progress-tracker-[a-z0-9]+\.vercel\.app$/;
+
+const corsOptions = {
+  origin: (incomingOrigin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // 1) Allow tools like curl or Postman (no Origin header)
+    if (!incomingOrigin) return callback(null, true);
+
+    // 2) Production origin
+    if (incomingOrigin === env.FRONTEND_URL) {
+      return callback(null, true);
+    }
+
+    // 3) Any Vercel preview
+    if (vercelPreviewRegex.test(incomingOrigin)) {
+      return callback(null, true);
+    }
+
+    // 4) Otherwise, block
+    callback(new Error(`CORS denied for origin ${incomingOrigin}`), false);
+  },
+  credentials: true,       // Allow cookies and Authorization header
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
+};
+
 const app = express();
 
 // Global middlewares
 app.use(helmet());
-const allowedOrigins = [
-  process.env.FRONTEND_URL!,
-  'https://video-progress-tracker-archit-mahules-projects.vercel.app/',
-  'https://video-progress-tracker-git-main-archit-mahules-projects.vercel.app/',
-];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // allow requests with no origin (mobile apps, curl)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error('Not allowed by CORS'), false);
-  },
-  credentials: true,
-}));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(rateLimit({ windowMs: 1 * 60 * 1000, max: 100 })); // 100 req/min
 app.use(passport.initialize());
