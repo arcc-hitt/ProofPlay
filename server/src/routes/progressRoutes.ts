@@ -12,8 +12,8 @@ const router = Router();
 // Apply JWT auth to all progress routes
 const requireAuth = passport.authenticate('jwt', { session: false });
 
-// GET /api/progress/:videoId
-router.get('/:videoId', requireAuth, getProgress);
+// GET /api/progress/videos/:videoId
+router.get('/videos/:videoId', requireAuth, getProgress);
 
 // POST /api/progress/update
 router.post('/update', requireAuth, progressValidator, updateProgress);
