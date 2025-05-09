@@ -1,6 +1,6 @@
 // Description: Validating and loading environment variables using the `envalid` package.
 // It ensures that all required environment variables are present and correctly formatted before the application starts.
-import 'dotenv/config';  
+import 'dotenv/config';
 import { cleanEnv, str, port, url } from 'envalid';
 
 const env = cleanEnv(process.env, {
@@ -14,6 +14,9 @@ const env = cleanEnv(process.env, {
   GOOGLE_CLIENT_SECRET: str(),
   GITHUB_CLIENT_ID: str(),
   GITHUB_CLIENT_SECRET: str(),
+  CLOUDINARY_CLOUD_NAME: str(),
+  CLOUDINARY_API_KEY: str(),
+  CLOUDINARY_API_SECRET: str(),
 });
 
 export default env;
