@@ -11,6 +11,7 @@ import env from './config/env';
 import errorHandler from './middlewares/errorHandler';
 import connectDB from './config/connectDB';
 import logger from './config/logger';
+import videoRoutes from './routes/videoRoutes';
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(passport.initialize());
 // Routes
 app.use('/auth', authRoutes);
 app.use('/api/progress', progressRoutes);
+app.use('/api/videos', videoRoutes);
 
 // Celebrate validation errors
 app.use(celebrateErrors());
