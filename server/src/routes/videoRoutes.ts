@@ -26,7 +26,7 @@ router.get(
         prefix: 'videos/',
         max_results: 100,
         context: true,
-        fields: 'display_name',
+        metadata: true,
       });
 
       const videos = (result.resources || []).map(r => {
@@ -36,7 +36,7 @@ router.get(
 
         // Extract title from metadata or fallback to videoId
         const context = r.context as any;
-        const title = context?.custom?.title || videoId;
+        const title = (r.context as any)?.custom?.caption || videoId;
         const durationStr = (r.context as any)?.custom?.duration;
 
         // Generate a JPG thumbnail URL (middle frame by default)
