@@ -38,7 +38,7 @@ export const SignUpPage: React.FC = () => {
 
   const onSubmit = async (data: SignUpFormInputs) => {
     try {
-      await signup(data);
+      await signup({ email: data.email, password: data.password });
       navigate('/', { replace: true });
     } catch (err: any) {
       const status = err.response?.status;
