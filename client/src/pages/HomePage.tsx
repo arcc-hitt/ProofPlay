@@ -1,3 +1,4 @@
+// Description: Home page for handling video playback, progress tracking, and user authentication.
 import React, { useEffect, useRef, useState, useCallback, memo } from 'react';
 import throttle from 'lodash.throttle';
 import api from '@/lib/api';
@@ -40,7 +41,7 @@ const VideoCard = memo(
     <Card
       onClick={onSelect}
       className={`mb-4 py-3 cursor-pointer hover:bg-gray-50 transition {{
-        isSelected ? 'bg-gray-200' : ''
+        ${isSelected ? 'bg-gray-200' : ''}
       }}`}
     >
       <CardHeader className="flex items-center space-x-2 px-3">
