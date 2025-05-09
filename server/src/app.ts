@@ -17,7 +17,24 @@ const app = express();
 
 // Global middlewares
 app.use(helmet());
-app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));
+const allowedOrigins = [
+  process.env.FRONTEND_URL!,
+  'https://video-progress-tracker-archit-mahules-projects.vercel.app/',
+  'https://video-progress-tracker-git-main-archit-mahules-projects.vercel.app/',
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow requests with no origin (mobile apps, curl)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'), false);
+  },
+  credentials: true,
+}));
 app.use(express.json());
 app.use(rateLimit({ windowMs: 1 * 60 * 1000, max: 100 })); // 100 req/min
 app.use(passport.initialize());
