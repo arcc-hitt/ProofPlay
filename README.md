@@ -109,5 +109,3 @@ Most e-learning platforms mark a lesson "complete" as soon as you hit the end of
 * Mobile app version with React Native.
 
 ---
-
-Made with ❤️ by Archit. Questions? Hit me up on GitHub!
