@@ -1,4 +1,6 @@
-**WatchWise: Smart Video Learning Tracker** 🚀
+### **ProofPlay**
+
+*Play. Watch. Prove you learned — No reel progress, only real!*
 
 Hey there! This is my take on making online learning actually meaningful by tracking real video-watching progress. No more cheating by skipping ahead or rewatching the same bit just to inflate your "complete" badge. 😜
 
@@ -10,7 +12,6 @@ Most e-learning platforms mark a lesson "complete" as soon as you hit the end of
 * **Prevent skipping hype**: If you jump to the end, you don’t get credit for the skipped bits.
 * **Save & Resume**: Come back later, and the player picks up where you left off – with progress showing only real new content.
 
-*(Based on the design doc: track real progress, merge intervals, handle edge cases, save state, resume seamlessly)* citeturn0file0
 
 ---
 
@@ -51,7 +52,6 @@ Most e-learning platforms mark a lesson "complete" as soon as you hit the end of
 * Backend upserts the user’s progress in MongoDB, keyed by `{ userId, videoId }`.
 * When the user returns, we load saved intervals, repopulate the Set, merge them, set the video’s `currentTime`, and display the true % watched.
 
-*(This meets the "track real progress" and "resume correctly" goals.)* citeturn0file0
 
 ---
 
