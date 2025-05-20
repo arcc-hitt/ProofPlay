@@ -48,8 +48,11 @@ export const SignUpPage: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md lg:max-w-lg p-6">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
+      <div className="w-full h-full flex items-center justify-center">
+        <img src="logo.png" alt="Logo" className="h-16" />
+      </div>
+      <Card className="w-full max-w-md lg:max-w-lg p-6 mt-4">
         <CardContent className="space-y-6">
           <h2 className="text-2xl font-semibold text-center">Sign Up</h2>
 
