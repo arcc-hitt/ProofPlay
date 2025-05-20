@@ -44,44 +44,49 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md lg:max-w-lg p-6">
-        <CardContent className="space-y-6">
-          <h2 className="text-2xl font-semibold text-center">Log In</h2>
+    <>
+      <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
+        <div className="w-full h-full flex items-center justify-center">
+          <img src="logo.png" alt="Logo" className="h-16" />
+        </div>
+        <Card className="w-full max-w-md lg:max-w-lg p-6 mt-4">
+          <CardContent className="space-y-6">
+            <h2 className="text-2xl font-semibold text-center">Log In</h2>
 
-          <div className="space-y-3">
-            <SocialAuthButton provider="google" url={GOOGLE_AUTH_URL} />
-            <SocialAuthButton provider="github" url={GITHUB_AUTH_URL} />
-          </div>
-
-          <div className="text-center text-sm text-gray-500">or use your email</div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="col-span-1 md:col-span-2">
-              <label htmlFor="email" className="block mb-1 text-sm font-medium">Email</label>
-              <Input id="email" type="email" placeholder="you@example.com" {...register('email')} />
-              {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
+            <div className="space-y-3">
+              <SocialAuthButton provider="google" url={GOOGLE_AUTH_URL} />
+              <SocialAuthButton provider="github" url={GITHUB_AUTH_URL} />
             </div>
 
-            <div className="col-span-1 md:col-span-2">
-              <label htmlFor="password" className="block mb-1 text-sm font-medium">Password</label>
-              <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
-              {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
-            </div>
+            <div className="text-center text-sm text-gray-500">or use your email</div>
 
-            <div className="col-span-1 md:col-span-2">
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? 'Logging in…' : 'Log In'}
-              </Button>
-            </div>
-          </form>
+            <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="col-span-1 md:col-span-2">
+                <label htmlFor="email" className="block mb-1 text-sm font-medium">Email</label>
+                <Input id="email" type="email" placeholder="you@example.com" {...register('email')} />
+                {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
+              </div>
 
-          <p className="text-center text-sm">
-            New here?{' '}
-            <Link to="/signup" className="text-blue-600 hover:underline">Create an account</Link>
-          </p>
-        </CardContent>
-      </Card>
-    </main>
+              <div className="col-span-1 md:col-span-2">
+                <label htmlFor="password" className="block mb-1 text-sm font-medium">Password</label>
+                <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
+                {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
+              </div>
+
+              <div className="col-span-1 md:col-span-2">
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? 'Logging in…' : 'Log In'}
+                </Button>
+              </div>
+            </form>
+
+            <p className="text-center text-sm">
+              New here?{' '}
+              <Link to="/signup" className="text-blue-600 hover:underline">Create an account</Link>
+            </p>
+          </CardContent>
+        </Card>
+      </main>
+    </>
   );
 };

@@ -40,9 +40,9 @@ const VideoCard = memo(
   ({ v, isSelected, onSelect }: { v: VideoItem; isSelected: boolean; onSelect: () => void }) => (
     <Card
       onClick={onSelect}
-      className={`mb-4 py-3 cursor-pointer hover:bg-gray-50 transition {{
-        ${isSelected ? 'bg-gray-200' : ''}
-      }}`}
+      className={`mb-4 py-3 cursor-pointer hover:bg-gray-50 transition ${
+        isSelected ? 'bg-gray-200' : ''
+      }`}
     >
       <CardHeader className="flex items-center space-x-2 px-3">
         <Avatar>
@@ -50,8 +50,10 @@ const VideoCard = memo(
           <AvatarFallback>{v.title.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col gap-1">
-          <CardTitle className="text-wrap">{v.title}</CardTitle>
-          <CardDescription>Duration: {Math.floor(v.duration / 60)}:{String(v.duration % 60).padStart(2, '0')}</CardDescription>
+          <CardTitle className="text-truncate text-sm">{v.title}</CardTitle>
+          <CardDescription className="text-xs md:text-sm">
+            Duration: {Math.floor(v.duration / 60)}:{String(v.duration % 60).padStart(2, '0')}
+          </CardDescription>
         </div>
       </CardHeader>
     </Card>
@@ -183,8 +185,9 @@ const HomePage: React.FC = () => {
     <div className="flex h-screen w-screen bg-gray-100">
       {/* Sidebar */}
       <aside className="hidden md:flex w-80 border-r bg-white flex-col overflow-y-auto">
-        <div className="px-4 py-5 border-b">
-          <h2 className="text-lg font-semibold">My Videos</h2>
+        <div className="flex items-center justify-center px-4 py-4 border-b gap-5">
+          <h2 className="text-lg font-semibold w-full">My Videos</h2>
+          <img src="/logo.png" alt="Logo" className="w-20 lg:w-25 h-full flex-1" />
         </div>
         <ScrollArea className="flex-1 p-4">
           {isLoadingVideos ? (
@@ -206,42 +209,45 @@ const HomePage: React.FC = () => {
         </ScrollArea>
       </aside>
 
-      <div className="flex-1 flex flex-col w-screen">
+      <div className="flex flex-col w-full">
         {/* Mobile Header */}
-        <header className="flex md:hidden items-center justify-between bg-white px-4 py-3 border-b">
-          <Select
-            value={selected?.videoId}
-            onValueChange={(val) => {
-              const v = videos.find((x) => x.videoId === val);
-              if (v) setSelected(v);
-            }}
-          >
-            <SelectTrigger className="w-full text-start">
-              <SelectValue placeholder="Select a video" />
-            </SelectTrigger>
-            <SelectContent className="max-w-full w-[var(--radix-select-trigger-width)] overflow-auto">
-              {videos.map((v) => (
-                <SelectItem key={v.videoId} value={v.videoId}>
-                  {v.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button variant="outline" onClick={logout} className="ml-2">
-            Logout
-          </Button>
+        <header className="flex md:hidden flex-col items-center bg-white px-4 py-3 border-b space-y-3">
+          <img src="/logo.png" alt="Logo" className="w-24 h-auto" />
+          <div className="flex w-full items-center justify-between">
+            <Select
+              value={selected?.videoId}
+              onValueChange={(val) => {
+                const v = videos.find((x) => x.videoId === val);
+                if (v) setSelected(v);
+              }}
+            >
+              <SelectTrigger className="w-3/4 text-start">
+                <SelectValue placeholder="Select a video" />
+              </SelectTrigger>
+              <SelectContent className="max-w-full w-[var(--radix-select-trigger-width)] overflow-auto">
+                {videos.map((v) => (
+                  <SelectItem key={v.videoId} value={v.videoId}>
+                    {v.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="outline" onClick={logout} className="w-1/5">
+              Logout
+            </Button>
+          </div>
         </header>
 
         {/* Desktop Header */}
         <header className="hidden md:flex items-center justify-between bg-white px-6 py-4 border-b">
-          <h1 className="text-2xl font-semibold truncate">{selected?.title ?? 'Select a video'}</h1>
+          <h1 className="text-lg font-semibold text-wrap">{selected?.title ?? 'Select a video'}</h1>
           <Button variant="outline" onClick={logout}>
             Logout
           </Button>
         </header>
 
         {/* Video Player & Progress */}
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto px-4 md:px-6 py-6">
           {selected ? (
             <Card className="max-w-4xl mx-auto space-y-6">
               <CardContent className="relative p-0">
@@ -263,7 +269,7 @@ const HomePage: React.FC = () => {
                 />
               </CardContent>
 
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-2 px-4 md:px-6">
                 <div className="flex items-center space-x-4">
                   <Progress value={progressPercent} max={100} className="flex-1 h-2" />
                   <span className="text-sm font-medium">{progressPercent.toFixed(1)}%</span>
