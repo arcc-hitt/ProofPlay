@@ -14,8 +14,7 @@ import logger from './config/logger';
 import videoRoutes from './routes/videoRoutes';
 
 // Build a regex matching Vercel’s preview domains for your project
-const vercelPreviewRegex =
-  /^https:\/\/video-progress-tracker-[a-z0-9]+\.vercel\.app$/;
+const vercelPreviewRegex = /^https:\/\/proofplay\.vercel\.app\/?$/;
 
 const corsOptions = {
   origin: (incomingOrigin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
