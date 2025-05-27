@@ -1,6 +1,15 @@
-### **ProofPlay**
+<div align="center">
+  <br />
+    <img src="https://github.com/user-attachments/assets/a1d389cd-63a6-4ba3-a594-8994e5227b41" alt="Project Banner">
+  <br />
 
-*Play. Watch. Prove you learned — No reel progress, only real!*
+  <h3 align="center">ProofPlay</h3>
+  <h6 align="center">Play. Watch. Prove you learned — No reel progress, only real!</h6>
+   <div align="center">
+     <a href="https://proofplay.vercel.app/" target="_blank">View Live Demo</a>
+   </div>
+</div>
+<br />
 
 Hey there! This is my take on making online learning actually meaningful by tracking real video-watching progress. No more cheating by skipping ahead or rewatching the same bit just to inflate your "complete" badge. 😜
 
