@@ -69,27 +69,73 @@ Most e-learning platforms mark a lesson "complete" as soon as you hit the end of
 1. **Clone it**
 
    ```bash
-   git clone https://github.com/yourusername/video-progress-tracker.git
+   git clone https://github.com/arcc-hitt/ProofPlay.git
+   cd ProofPlay
    ```
 2. **Backend**
+	```bash
+ 	cd server
+ 	```
+  
+	* Create a new file named `.env` in the `server` folder.
+	* Open `.env.example`, copy all its contents, and paste them into the newly created `.env` file.
+	* Fill in the required environment variables in `server/.env`:
 
-   ```bash
-   cd backend
-   cp .env.example .env
-   # Fill in MONGO_URI, JWT_SECRET, GOOGLE/GITHUB keys, FRONTEND_URL, CLOUDINARY creds...
-   npm install
-   npm run dev
-   ```
+      ```
+      MONGO_URI=your_mongo_connection_string
+      PORT=5000
+      JWT_SECRET=your_jwt_secret
+      GOOGLE_CLIENT_ID=your_google_client_id
+      GOOGLE_CLIENT_SECRET=your_google_client_secret
+      GITHUB_CLIENT_ID=your_github_client_id
+      GITHUB_CLIENT_SECRET=your_github_client_secret
+      BACKEND_URL=http://localhost:5000
+      FRONTEND_URL=http://localhost:5173
+      CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+      CLOUDINARY_API_KEY=your_cloudinary_api_key
+      CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+      ```
+  
+	* Install dependencies and start the backend server:
+  
+	  ```bash
+	  npm install
+	  npm run dev
+	  ```
+  
+  > The backend will run on [http://localhost:5000](http://localhost:5000) by default.
+
+  
+
 3. **Frontend**
 
-   ```bash
-   cd frontend
-   cp .env.example .env
-   # VITE_BACKEND_URL=http://localhost:4000
-   npm install
-   npm run dev
-   ```
-4. Visit `http://localhost:3000`, sign up/login, pick a video, and watch real progress happen!
+	```bash
+ 	cd client
+	```
+
+	* Create a new file named `.env` in the `client` folder.
+    * Open `client/.env.example`, copy all its contents, and paste them into the newly created `client/.env` file.
+    * Fill in the required environment variable:
+
+      ```
+      VITE_BACKEND_URL=http://localhost:5000
+      VITE_FRONTEND_URL=http://localhost:5173
+      VITE_GOOGLE_AUTH_URL=http://localhost:5000/auth/google
+      VITE_GITHUB_AUTH_URL=http://localhost:5000/auth/github
+      ```
+
+	* Install dependencies and start the frontend server:
+    
+	  ```bash
+	  npm install
+	  npm run dev
+	  ```
+    
+  > The frontend will run on [http://localhost:5173](http://localhost:5173) by default.
+
+
+
+4. Visit `http://localhost:5173`, sign up/login, pick a video, and watch real progress happen!
 
 ---
 
